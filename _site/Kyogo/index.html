@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title>Kyogo</title>
+	<!-- This meta tag ensures that the toolbar at the bottom of the browser 
+		is hidden when this page is accessed frome the Home Screen. -->
+	<meta name="apple-mobile-web-app-capable" content="yes" />
+	<meta name="viewport" content="width=device-width; initial-scale=1; maximum-scale=1; user-scalable=0;"/>
+	
+	<style type="text/css">
+		html, body {
+			background-color: #000;
+			margin: 0;
+			padding: 0;
+			min-height: 416px;
+			position: relative;
+		}
+		.button {
+			background-image: url(media/iphone-buttons.png);
+			background-repeat: no-repeat;
+			width: 80px;
+			height: 96px;
+			position: absolute;
+			bottom: 0px;
+			
+			-webkit-touch-callout: none;
+			-webkit-user-select: none;
+			-webkit-tap-highlight-color: rgba(0,0,0,0);
+			-webkit-text-size-adjust: none;
+		}
+		#buttonLeft { left: 0; background-position: 0, 0; }
+		#buttonRight { left: 80px; background-position: -80px, 0; }
+		#buttonItem { left: 160px; background-position: -320px, 0; visibility: hidden;}
+		#buttonAction { left: 240px; background-position: -160px, 0; }
+	</style>
+	
+	
+	
+	<script type="text/javascript" src="game.min.js"></script>
+	
+</head>
+<body onload="setTimeout(function(){window.scrollTo(0,0);},1);">
+	<div id="game">
+		<canvas id="canvas"></canvas>
+		<div class="button" id="buttonLeft"></div>
+		<div class="button" id="buttonRight"></div>
+		<div class="button" id="buttonItem"></div>
+		<div class="button" id="buttonAction"></div>
+	</div>
+</body>
+</html>
