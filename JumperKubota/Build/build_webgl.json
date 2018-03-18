@@ -1,5 +1,5 @@
 {
-"companyName": "DefaultCompany",
+"companyName": "studiok3",
 "productName": "JumpGame",
 "dataUrl": "build_webgl.data.unityweb",
 "asmCodeUrl": "build_webgl.asm.code.unityweb",
@@ -8,6 +8,6 @@
 "TOTAL_MEMORY": 268435456,
 "graphicsAPI": ["WebGL 2.0", "WebGL 1.0"],
 "webglContextAttributes": {"preserveDrawingBuffer": false},
-"splashScreenStyle": "Dark",
-"backgroundColor": "#231F20"
+"splashScreenStyle": "Light",
+"backgroundColor": "#828080"
 }
