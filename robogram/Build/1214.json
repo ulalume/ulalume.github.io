@@ -1,0 +1,16 @@
+{
+"companyName": "jp.co.softdevice",
+"productName": "Robogram",
+"productVersion": "0.1",
+"dataUrl": "1214.data.unityweb",
+"wasmCodeUrl": "1214.wasm.code.unityweb",
+"wasmFrameworkUrl": "1214.wasm.framework.unityweb",
+"graphicsAPI": ["WebGL 2.0","WebGL 1.0"],
+"webglContextAttributes": {"preserveDrawingBuffer": false},
+"splashScreenStyle": "Dark",
+"backgroundColor": "#231F20",
+"cacheControl": {"default": "must-revalidate"},
+"developmentBuild": false,
+"multithreading": false,
+"unityVersion": "2019.2.16f1"
+}
