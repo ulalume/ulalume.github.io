@@ -1,24 +1,19 @@
 <!DOCTYPE html>
 <html lang="en-us">
-
 <head>
   <meta charset="utf-8">
   <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
-  <title>Unity WebGL Player | Christmas</title>
+  <title>Unity WebGL Player | RealTimeRendering</title>
+  <link href="https://fonts.googleapis.com/css?family=Roboto:100" rel="stylesheet">
+  <link rel="stylesheet" type="text/css" href="responsiveMinimalTemplateStyles.css"/>
   <script src="Build/UnityLoader.js"></script>
+  <script src="responsiveMinimalTemplateLoader.js"></script>
   <script>
-    UnityLoader.instantiate("unityContainer", "Build/chiristmas.json");
+      instantiateUnity("Build/chiristmas.json","");
   </script>
-  <style type="text/css">
-    body {
-      margin: 0;
-      background-color: #F3F3F3;
-    }
-  </style>
 </head>
-
 <body>
-  <div id="unityContainer" style="width: 512px; height: 512px; margin: auto"></div>
+<div id="gameContainer" style="width: 100%; height: 100%"></div>
+<div id="loadingContainer"><span>Loading</span></div>
 </body>
-
 </html>
