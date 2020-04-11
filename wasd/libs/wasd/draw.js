@@ -50,7 +50,8 @@ export const popctx = () => {
   ctxList.pop()
 }
 
-export const _size = [64, 128, 128, 256]
+export const _sizes = [64, 128, 256]
+export let size
 
 export const loadData = async (settings) => {
   defaultSprite = await loadImage('./images/' + settings.defaultSprite).catch(e => console.log('onload error', e));
@@ -63,65 +64,65 @@ export const loadData = async (settings) => {
 }
 
 export const _init = async (settings) => {
-  canvas = document.querySelector('#game')
-  canvas.width = _size[settings.screen]
-  canvas.height = _size[settings.screen]
+  canvas = document.querySelector('#'+settings.canvas.game)
+  size = _sizes[settings.screen]
+  canvas.width = size
+  canvas.height = size
   canvas.setAttribute('style', `background-color:${palette2[settings.backgroundColor]}`)
   const context = canvas.getContext('2d')
   context.imageSmoothingEnabled = false
   pushctx(context)
-
   await loadData(settings)
 }
 
 export const cls = (x = 0, y = 0, w = null, h = null) => {
-  ctx().clearRect(x, y, w || canvas.width, h || canvas.height)
+  ctx().clearRect(x, y, w || size, h || size)
 }
 
-export const spr = (num, x, y, sw = 1, sh = 1, rotation = 0) => {
+export const spr = (num, x, y, sw = 1, sh = 1, rotation = 0, color = 7) => {
   num = flr(num)
-  x = flr(x)
-  y = flr(y)
   const sx = (num * 8) % sprite.width
   const sy = flr((num * 8) / sprite.width) * 8
-  if (rotation != 0) {
-    rotation = flr(rotation)
-    ctx().save()
-    ctx().translate(x + sx / 2, y + sy / 2)
-    ctx().rotate(rotation * pi/ 2)
-    ctx().drawImage(sprite, sx, sy, sw * 8, sh * 8, -sx / 2, -sy /2, sw * 8, sh * 8)
-    ctx().restore()
-  } else {
-    ctx().drawImage(sprite, sx, sy, sw * 8, sh * 8, x, y, sw * 8, sh * 8)
-  }
+  sspr(sx, sy, x, y, sw * 8, sh * 8, rotation, color)
 }
 
-export const sspr = (sx, sy, x, y, sw = 8, sh = 8, rotation = 0) => {
+export const sspr = (sx, sy, x, y, sw = 8, sh = 8, rotation = 0, color = 7) => {
   x = flr(x)
   y = flr(y)
   sx = flr(sx)
   sy = flr(sy)
+  
+  if (color != 7) {
+    ctx().save()
+    rect(x, y, sw, sh)
+    ctx().globalCompositeOperation = "multiply";
+  }
   if (rotation != 0) {
     rotation = flr(rotation)
-    ctx().save()
-    ctx().translate(x + sx / 2, y + sy / 2)
+    if (color == 7) ctx().save()
+    ctx().translate(x + sw / 2, y + sh / 2)
     ctx().rotate(rotation * pi/ 2)
-    ctx().drawImage(sprite, sx, sy, sw, sh, - sx / 2, - sy / 2, sw, sh)
-    ctx().restore()
+    ctx().drawImage(sprite, sx, sy, sw, sh, - sw / 2, -sh / 2, sw, sh)
+    if (color == 7) ctx().restore()
   } else {
     ctx().drawImage(sprite, sx, sy, sw, sh, x, y, sw, sh)
+  }
+  if (color != 7) {
+    ctx().closePath()
+    ctx().restore()
+    console.log(ctx().globalCompositeOperation)
   }
 }
 
 export const rectl = (x, y, w, h, color) => {
+  w = flr(w)
+  h = flr(h)
   if (w == 1 && h == 1) {
     pset(x, y, color)
     return
   }
   x = flr(x)
   y = flr(y)
-  w = flr(w)
-  h = flr(h)
   x+=0.5
   y+=0.5
   w-=1
@@ -131,57 +132,70 @@ export const rectl = (x, y, w, h, color) => {
   ctx().lineWidth = 1;
   ctx().strokeRect(x, y, w, h)
   ctx().stroke();
+  ctx().closePath();
 }
 export const rect = (x, y, w, h, color) => {
   x = flr(x)
   y = flr(y)
   w = flr(w)
   h = flr(h)
+  ctx().beginPath();
   ctx().fillStyle = palette2[color]
   ctx().fillRect(x, y, w, h)
+  ctx().closePath();
 }
 export const pset = (x, y, color) => {
   rect(x, y, 1, 1, color)
 }
 
-export const circlel = (x0, y0, r, color) => {
-  x0 = flr(x0)
-  y0 = flr(y0)
-  r = flr(r)
-  let x = r;
-  let y = 0;
-  let F = -2 * r + 3;
-
-  while ( x >= y ) {
-    pset( x0 + x, y0 + y, color )
-    pset( x0 - x, y0 + y, color )
-    pset( x0 + x, y0 - y, color )
-    pset( x0 - x, y0 - y, color )
-    pset( x0 + y, y0 + x, color )
-    pset( x0 - y, y0 + x, color )
-    pset( x0 + y, y0 - x, color )
-    pset( x0 - y, y0 - x, color )
+export const circlel = (x, y, r, color) => {
+  const x0 = flr(x)
+  const y0 = flr(y)
+  const r0 = flr(r)
+  let dx = r0;
+  let dy = 0;
+  let F = -2 * r0 + 3;
+  while ( dx >= dy ) {
+    pset( x0 + dx, y0 + dy, color )
+    pset( x0 - dx, y0 + dy, color )
+    pset( x0 + dx, y0 - dy, color )
+    pset( x0 - dx, y0 - dy, color )
+    pset( x0 + dy, y0 + dx, color )
+    pset( x0 - dy, y0 + dx, color )
+    pset( x0 + dy, y0 - dx, color )
+    pset( x0 - dy, y0 - dx, color )
     if ( F >= 0 ) {
-      x--;
-      F -= 4 * x;
+      dx--;
+      F -= 4 * dx;
     }
-    y++;
-    F += 4 * y + 2;
+    dy++;
+    F += 4 * dy + 2;
   }
 }
-export const circle = (x0, y0, r, color) => {
-  x0 = flr(x0)
-  y0 = flr(y0)
-  r = flr(r)
+export const circle = (x, y, r, color) => {
+  const x0 = flr(x)
+  const y0 = flr(y)
+  const r0 = flr(r)
+  ctx().beginPath();
   ctx().fillStyle = palette2[color]
-  ctx().arc(x0 + 0.5, y0 + 0.5, r, 0, pi * 2)
+  ctx().arc(x0 + 0.5, y0 + 0.5, r0 + 0.1, 0, pi * 2)
   ctx().fill()
-  circlel(x0, y0, r, color)
+  ctx().closePath();
+  circlel(x0, y0, r0, color)
 }
 
 export const print = (str, x = 0, y = 0, color = 7) => {
   ctx().fillStyle = palette2[color]
   fonts[fontIndex].drawText(ctx(), str, flr(x), flr(y) + 6)
+}
+export const printl = (str, x = 0, y = 0, color = 7, colorEdge = 0) => {
+  ctx().fillStyle = palette2[colorEdge]
+  fonts[fontIndex].drawEdgeText(ctx(), str, flr(x), flr(y) + 6)
+  print(str, x, y, color)
+}
+export const measure = (str) => {
+  const a = fonts[fontIndex].measureText(str)
+  return [a.width, 8]
 }
 export const line = (x1, y1, x2, y2, color) => {
   x1 = flr(x1)

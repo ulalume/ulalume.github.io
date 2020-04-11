@@ -1,15 +1,21 @@
-import { _init as init_d } from "./draw.js"
+import { _init as init_d, print } from "./draw.js"
 import { _init as init_i, _beforeUpdate as beforeUpdate_i, _afterUpdate as afterUpdate_i } from "./input.js"
 import { _init as init_v, _afterUpdate as afterUpdate_v, _draw as draw_v } from "./vpad.js"
 
 const defaultSettings = {
-  screen: 2, // 0:64, 1:128, 2:256
+  screen: 1, // 0:64, 1:128, 2:256
   fps: null,
   fonts: ['full/gothic'],
   backgroundColor: 0, // 0 - 7
-  virtualPad: false,
+  vpad: false,
   defaultSprite: 'sprite.png',
-  defaultGamepad: {index: 0, /*horizontal: 0, vertical: 1, */up: 12, down: 13 ,left: 14, right: 15, a: 0, b: 1}
+  defaultGamepad: {index: 0, /*horizontal: 0, vertical: 1, */up: 12, down: 13 ,left: 14, right: 15, a: 0, b: 1},
+  canvas: {
+    vpadLeft: 'vpad-left',
+    vpadRight: 'vpad-right',
+    game: 'game',
+  },
+  drawFps: false,
 }
 
 const documentReady = (data) => {
@@ -31,7 +37,7 @@ export const init = async () => {
   await init_i(settings)
   await init_d(settings)
   
-  if (settings.virtualPad) await init_v(settings)
+  if (settings.vpad) await init_v(settings)
 }
 
 const firstTime = Date.now()
@@ -51,7 +57,7 @@ export const update = (onupdate) => {
     if (onupdate == null) return
     onupdate((time - oldTime) / 1000)
 
-    afterUpdate_v()
+    if (settings.vpad) afterUpdate_v()
     afterUpdate_i()
     timeoutId = setTimeout(func, 1000 / 60)
   }
@@ -67,7 +73,8 @@ export const draw = (ondraw) => {
     time = Date.now()
     if (ondraw == null) return
     ondraw((time - oldTime) / 1000)
-    if (settings.virtualPad) draw_v(settings)
+    if (settings.vpad) draw_v(settings)
+    if (settings.drawFps) {print((1000 / (time - oldTime)).toFixed(1) + "fps", 8, 8, 7)}
     requestId = settings.fps == null ? requestAnimationFrame(func) : setTimeout(func, 1000 / settings.fps)
   }
   requestId = settings.fps == null ? requestAnimationFrame(func) : setTimeout(func, 1000 / settings.fps)

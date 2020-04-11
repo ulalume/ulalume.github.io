@@ -4,12 +4,12 @@
   "description": "サンプルゲームです",
   "icons": [
     {
-      "src": "/images/icon.png",
+      "src": "images/icon.png",
       "type": "image/png",
       "sizes": "192x192"
     }
   ],
-  "start_url": "/?source=pwa",
+  "start_url": "/index.html?source=pwa",
   "display": "standalone",
   "scope": "/",
   "orientation": "portrait",

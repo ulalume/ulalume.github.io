@@ -1,5 +1,5 @@
 
-import { cls, spr, rectl, rect, line, print, _size, pushctx, popctx, circlel } from './draw.js'
+import { cls, spr, rectl, rect, line, print, _sizes, pushctx, popctx, circlel } from './draw.js'
 import { _state as buttonState, keyCodes as codes } from './input.js'
 import { draw } from './game.js'
 
@@ -13,26 +13,39 @@ const leftButtons = [1, 3, 0, 2]
 const rightTouchIds = [null, null]
 const rightButtons = [4, 5]
 
+let canvasSize
+
+const buttonLayouts = [
+  [1 / 4 * 1, 1 / 4 * 2, 1 / 6],
+  [1 / 4 * 3, 1 / 4 * 2, 1 / 6],
+  [1 / 4 * 2, 1 / 4 * 1, 1 / 6],
+  [1 / 4 * 2, 1 / 4 * 3, 1 / 6],
+
+  [1 / 2    , 1 / 2, 1 / 3],
+  [1 / 6 * 5, 1 / 6, 1 / 8],
+]
+
 export const _init = async (settings) => {
-  const canvasLeft = document.querySelector('#virtual-pad-left')
-  canvasLeft.width = _size[settings.screen] / 2
-  canvasLeft.height = _size[settings.screen] / 2
+  canvasSize = _sizes[settings.screen] / 2
+
+  const canvasLeft = document.querySelector('#' + settings.canvas.vpadLeft)
+  canvasLeft.width = canvasSize
+  canvasLeft.height = canvasSize
   canvases.push(canvasLeft)
   
-  const canvasRight = document.querySelector('#virtual-pad-right')
-  canvasRight.width = _size[settings.screen] / 2
-  canvasRight.height = _size[settings.screen] / 2
+  const canvasRight = document.querySelector('#' + settings.canvas.vpadRight)
+  canvasRight.width = canvasSize
+  canvasRight.height = canvasSize
   canvases.push(canvasRight)
 
   if ('ontouchstart' in window) {
-    canvasLeft.addEventListener("touchstart", handleStartLeft, false);
-    canvasLeft.addEventListener("touchmove",  handleMoveLeft, false);
-    canvasLeft.addEventListener("touchend", handleEndLeft, false);
-    canvasRight.addEventListener("touchstart", handleStartRight, false);
-    canvasRight.addEventListener("touchend", handleEndRight, false);
+    canvasLeft.addEventListener("touchstart", handleStartLeft, {capture: false, passive: false});
+    canvasLeft.addEventListener("touchmove",  handleMoveLeft, {capture: false, passive: false});
+    canvasLeft.addEventListener("touchend", handleEndLeft, {capture: false, passive: false});
+    canvasRight.addEventListener("touchstart", handleStartRight, {capture: false, passive: false});
+    canvasRight.addEventListener("touchend", handleEndRight, {capture: false, passive: false});
   } else {
     canvasLeft.addEventListener("mousedown", onmousedownLeft, false);
-    canvasLeft.addEventListener("mousemove", onmousemoveLeft, false);
     canvasLeft.addEventListener("mouseup", onmouseupLeft, false);
     canvasRight.addEventListener("mousedown", onmousedownRight, false);
     canvasRight.addEventListener("mouseup", onmouseupRight, false);
@@ -43,32 +56,21 @@ export const _init = async (settings) => {
     ctxes.push(context)
   })
 
-  buttonLayouts = [
-    [canvases[0].width / 4 - 2, canvases[0].height / 4 * 2, canvases[0].width / 5 ],
-    [canvases[0].width / 4 * 3 + 2, canvases[0].height / 4 * 2, canvases[0].width / 5 ],
-    [canvases[0].width / 4 * 2, canvases[0].height / 4 - 2, canvases[0].width / 5 ],
-    [canvases[0].width / 4 * 2, canvases[0].height / 4 * 3 + 2, canvases[0].width / 5 ],
-  
-    [canvases[1].width / 2, canvases[1].height / 2, canvases[1].width / 3],
-    [canvases[1].width / 6 * 5, canvases[1].height / 6, canvases[1].width / 8],
-  ]
 }
 
 export const _afterUpdate = () => {
   buttonState.forEach((bs, i) => state[i] = bs != 0)
 }
-
-let buttonLayouts;
 export const _draw = () => {
   state.forEach((b, i) => {
     if (b != tempState[i]) {
       if (i < 4) {
         pushctx(ctxes[0])
-        circlel(buttonLayouts[i][0], buttonLayouts[i][1], buttonLayouts[i][2], b ? 4 : 1)
+        circlel(buttonLayouts[i][0] * canvasSize, buttonLayouts[i][1] * canvasSize, buttonLayouts[i][2] * canvasSize, b ? 4 : 1)
         popctx()
       } else {
         pushctx(ctxes[1])
-        circlel(buttonLayouts[i][0], buttonLayouts[i][1], buttonLayouts[i][2], b ? 4 : 1)
+        circlel(buttonLayouts[i][0] * canvasSize, buttonLayouts[i][1] * canvasSize, buttonLayouts[i][2] * canvasSize, b ? 4 : 1)
         popctx()
       }
     }
@@ -100,7 +102,6 @@ const handleStartLeft = e => {
     break;
   }
 }
-
 const handleMoveLeft = e => {
   e.preventDefault()
   for (const touch of e.touches) {
@@ -156,11 +157,13 @@ const handleEndRight = e => {
 }
 const onmousedownLeft = e => {
   touchLeft(getPoint(e.target, e.clientX, e.clientY))
+  e.target.addEventListener("mousemove", onmousemoveLeft, false);
 }
 const onmousemoveLeft = e => {
   touchLeft(getPoint(e.target, e.clientX, e.clientY))
 }
 const onmouseupLeft = e => {
+  e.target.removeEventListener("mousemove", onmousemoveLeft, false);
   leftButtons.forEach((s) => {
     if (buttonState[s] != 0) document.dispatchEvent(new KeyboardEvent("keyup", codes[s]))
   })

@@ -5,13 +5,11 @@ body {
   height: 100%;
   background-color: black;
 }
-
 canvas {
   image-rendering: crisp-edges;
   image-rendering: pixelated;
   display: block;
 }
-
 @media (orientation: landscape){
   #game {
     position: absolute;
@@ -20,13 +18,13 @@ canvas {
     left: 50%;
     transform: translate(-50%, -50%);
   }
-  #virtual-pad-left {
+  #vpad-left {
     position: absolute;
     bottom: 0%;
     left: 0%;
     height: 50%;
   }
-  #virtual-pad-right {
+  #vpad-right {
     position: absolute;
     bottom: 0%;
     right: 0%;
@@ -37,13 +35,13 @@ canvas {
   canvas {
     width: 100%;
   }
-  #virtual-pad-left {
+  #vpad-left {
     position: absolute;
     bottom: 0%;
     left: 0%;
     width: 50%;
   }
-  #virtual-pad-right {
+  #vpad-right {
     position: absolute;
     bottom: 0%;
     right: 0%;
