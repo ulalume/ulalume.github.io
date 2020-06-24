@@ -8,7 +8,10 @@ youtube.onReady = () => {
     console.log("onready")
 
     const player = youtube.getDom();
-    const video = document.getElementById("video");           // video 要素を取得
+    const video = document.getElementById("video")
+
+    const coverUp = document.getElementById("cover_up")
+    const coverDown = document.getElementById("cover_down")
 
     // getUserMedia によるカメラ映像の取得
     const media = navigator.mediaDevices.getUserMedia({       // メディアデバイスを取得
@@ -35,7 +38,12 @@ youtube.onReady = () => {
             roundedMouse = roundedMouse * 0.96 + mouth * 0.04;
             //showMouthSize(mouth, roundedMouse)
 
-            player.style.opacity = map(roundedMouse, 0.1, 0.3, 0, 1, true)
+            player.style.opacity = map(roundedMouse, 0.1, 0.12, 0.3, 1, true)
+            coverUp.style.height = map(roundedMouse, 0.1, 0.3, 48, 0, true) + "vh"
+            coverDown.style.height = map(roundedMouse, 0.1, 0.3, 48, 0, true) + "vh"
+            coverDown.style.top =  (100 - map(roundedMouse, 0.1, 0.3, 48, 0, true)) + "vh"
+            coverUp.style.width =  "100%"
+            coverDown.style.width = "100%"
         } catch (e) {
             return
         }
