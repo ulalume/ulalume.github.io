@@ -39,11 +39,11 @@ youtube.onReady = () => {
             //showMouthSize(mouth, roundedMouse)
 
             player.style.opacity = map(roundedMouse, 0.1, 0.12, 0.3, 1, true)
-            coverUp.style.height = map(roundedMouse, 0.1, 0.3, 48, 0, true) + "vh"
-            coverDown.style.height = map(roundedMouse, 0.1, 0.3, 48, 0, true) + "vh"
-            coverDown.style.top =  (100 - map(roundedMouse, 0.1, 0.3, 48, 0, true)) + "vh"
-            coverUp.style.width =  "100%"
-            coverDown.style.width = "100%"
+            const height = map(roundedMouse, 0.1, 0.3, 48, 0, true)
+            coverUp.style.height = height + "vh"
+            coverDown.style.height = height + "vh"
+            coverDown.style.top =  (100 - height) + "vh"
+            youtube.setVolume(map(roundedMouse, 0.1, 0.3, 10, 100, true))
         } catch (e) {
             return
         }
