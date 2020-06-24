@@ -20,15 +20,19 @@ let player;
 
 class YoutubeVideo {
   constructor() {
+    this.player = player
+  }
+  getDom() {
+    return document.getElementById("player")
   }
   play() {
-    player.playVideo()
+    this.player.playVideo()
   }
   pause() {
-    player.pauseVideo()
+    this.player.pauseVideo()
   }
   stop() {
-    player.stopVideo()
+    this.player.stopVideo()
   }
 }
 
