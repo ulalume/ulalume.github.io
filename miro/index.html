@@ -2,11 +2,11 @@
 <html lang="en">
 
 <head>
-    <div>v0.1</div>
+    <div>v0.2</div>
     <script type="text/javascript" src="https://miro.com/app/static/sdk.1.1.js"></script>
     <script type="text/javascript">
         async function onClick() {
-            alert('v0.1')
+            alert('v0.2')
             const waitOneSec = () => new Promise(r => setTimeout(r, 1000))
             let sticker = (await miro.board.widgets.create({ type: 'sticker', text: 'Hello' }))[0]
             await miro.board.viewport.zoomToObject(sticker)
