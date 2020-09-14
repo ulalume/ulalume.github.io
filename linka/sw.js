@@ -1,7 +1,7 @@
 //self.addEventListener('fetch', () => { })
 
 
-const CACHE_VERSION = 'v2';
+const CACHE_VERSION = 'v5';
 const CACHE_NAME = `${registration.scope}!${CACHE_VERSION}`;
 
 // キャッシュするファイルをセットする

@@ -7,21 +7,52 @@ body {
 
 #game {
     display: flex;
-    align-items: center;
+    align-items: start;
     justify-content: center;
     width: 100vw;
     height: 100vh;
-    height: -webkit-fill-available;
 }
+#container {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+@media (orientation: landscape){
+    #container {
+        height: 100vh;
+        width: calc(100vh * 640 / 576);
+    }
+}
+@media (orientation: portrait){
+    #container {
+        width: 100vw;
+        height: calc(100vw * 576 / 640);
+    }
+}
+
+#unity-canvas {
+    width: 640px;
+    height: 576px;
+}
+
 
 .display-none {
     display: none;
 }
 
-#progress {
-  position: absolute;
-  width: 80%;
-  z-index: 1000000;
+#progress-container {
+    position: absolute;
+    top:0;
+    width: 100vw;
+    height: 1vh;
+}#progress {
+    top:0;
+    left:0;
+    width: 100%;
+    height: 100%;
+    z-index: 10000;
+    background-color: #4b376a;
 }
 
 
@@ -156,11 +187,6 @@ body {
 .button-touched {
     opacity: 1.0 !important;
 }
-#unity-canvas {
-    width: 640px;
-    height: 576px;
-}
-
 .message {
     color: white;
     text-align: center;

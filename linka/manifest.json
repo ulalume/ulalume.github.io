@@ -3,7 +3,7 @@
     "short_name": "Linka",
     "name": "Linka",
     "description": "Falling block puzzle.",
-    "start_url": "/index.html",
+    "start_url": "/linka/index.html",
     "display": "standalone",
     "scope": "/linka/",
     "theme_color": "#4b376a",

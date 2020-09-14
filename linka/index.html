@@ -12,8 +12,13 @@
 
 <body>
   <div id="game">
-    <canvas id="unity-canvas" width="640" height="576"></canvas>
-    <progress id="progress" max="100" value="0"></progress>
+    <div id="container">
+      <canvas id="unity-canvas" width="640" height="576"></canvas>
+    </div>
+
+    <div id="progress-container">
+      <div id="progress"></div>
+    </div>
     <div class="message display-none">Tap the screen for sound playing.</div>
   </div>
   <div id="vpad-left" class="vpad display-none">
@@ -66,17 +71,14 @@
       productName: "linka",
       productVersion: "0.1",
     }, (progress) => {
-      progressBar.value = 100 * progress;
+      progressBar.style.width = (100 * progress) + "%";
     }).then((unityInstance) => {
 
       const unityCanvas = document.querySelector("#unity-canvas")
+      const container = document.querySelector("#container")
       let resizeId = -1;
       const onresize = () => {
-        if (gameMain.clientWidth / gameMain.clientHeight < 640 / 576) {
-          unityCanvas.style.transform = "scale(" + gameMain.clientWidth / 640 + ")"
-        } else {
-          unityCanvas.style.transform = "scale(" + gameMain.clientHeight / 576 + ")"
-        }
+        unityCanvas.style.transform = "scale(" + container.clientWidth / 640 + ")"
       }
       window.addEventListener('resize', onresize)
       onresize();
