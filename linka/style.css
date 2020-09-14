@@ -45,14 +45,15 @@ body {
     position: absolute;
     top:0;
     width: 100vw;
-    height: 1vh;
-}#progress {
+    height: 2vh;
+}
+#progress {
     top:0;
     left:0;
-    width: 100%;
+    width: 0;
     height: 100%;
     z-index: 10000;
-    background-color: #4b376a;
+    background-color: #92c1c9;
 }
 
 
