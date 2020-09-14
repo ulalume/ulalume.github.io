@@ -1,0 +1,311 @@
+<!DOCTYPE html>
+<html lang="en-us">
+
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+  <link rel="manifest" href="manifest.json">
+  <link rel="icon" type="image/png" href="./icon/favicon.png" sizes="32x32">
+  <title>Unity WebGL Player | linka</title>
+  <link rel="stylesheet" type="text/css" href="./style.css">
+</head>
+
+<body>
+  <div id="game">
+    <canvas id="unity-canvas" width="640" height="576"></canvas>
+    <progress id="progress" max="100" value="0"></progress>
+    <div class="message display-none">Tap the screen for sound playing.</div>
+  </div>
+  <div id="vpad-left" class="vpad display-none">
+    <div id="left-button"><img src="svg/left.svg" width="48" height="48"></div>
+    <div id="right-button"><img src="svg/right.svg" width="48" height="48"></div>
+    <div id="down-button"><img src="svg/down.svg" width="48" height="48"></div>
+  </div>
+  <div id="vpad-right" class="vpad display-none">
+    <div id="a-button">
+      <div class="button-image"><img src="svg/rotate_right.svg" width="48" height="48"></img></div>
+    </div>
+    <div id="b-button">
+      <div class="button-image"><img src="svg/rotate_left.svg" width="48" height="48"></img></div>
+    </div>
+  </div>
+  <script src="Build/webgl.loader.js"></script>
+  <script>
+
+    if ('serviceWorker' in navigator) {
+      navigator.serviceWorker.register('sw.js').then(function (registration) {
+        console.log('ServiceWorker success. scope: ', registration.scope);
+      }).catch(function (err) {
+        console.log('ServiceWorker error', err);
+      });
+    }
+    const gameMain = document.querySelector("#game")
+    gameMain.addEventListener('touchstart', e => e.preventDefault(), { passive: false });
+    gameMain.addEventListener('touchmove', e => e.preventDefault(), { passive: false });
+    gameMain.addEventListener('touchend', e => e.preventDefault(), { passive: false });
+
+    const buttons = {
+      right: document.querySelector("#right-button"),
+      down: document.querySelector("#down-button"),
+      left: document.querySelector("#left-button"),
+      a: document.querySelector("#a-button"),
+      b: document.querySelector("#b-button"),
+    }
+    /*
+    const isSmartPhone = () => {
+      return navigator.userAgent.match(/iPhone|Android.+Mobile/);
+    }*/
+
+    const progressBar = document.querySelector("#progress");
+    createUnityInstance(document.querySelector("#unity-canvas"), {
+      dataUrl: "Build/webgl.data.unityweb",
+      frameworkUrl: "Build/webgl.framework.js.unityweb",
+      codeUrl: "Build/webgl.wasm.unityweb",
+      streamingAssetsUrl: "StreamingAssets",
+      companyName: "summer_books_philosophy",
+      productName: "linka",
+      productVersion: "0.1",
+    }, (progress) => {
+      progressBar.value = 100 * progress;
+    }).then((unityInstance) => {
+
+      const unityCanvas = document.querySelector("#unity-canvas")
+      let resizeId = -1;
+      const onresize = () => {
+        if (gameMain.clientWidth / gameMain.clientHeight < 640 / 576) {
+          unityCanvas.style.transform = "scale(" + gameMain.clientWidth / 640 + ")"
+        } else {
+          unityCanvas.style.transform = "scale(" + gameMain.clientHeight / 576 + ")"
+        }
+      }
+      window.addEventListener('resize', onresize)
+      onresize();
+
+      progressBar.classList.add("display-none");
+
+      // touch mode
+      if ('ontouchstart' in window) {
+
+        const onTapFirst = () => {
+          unityCanvas.removeEventListener("touchstart", onTapFirst);
+          message.classList.add("display-none");
+        }
+        unityCanvas.addEventListener("touchstart", onTapFirst);
+
+        var vpadLeft = document.querySelector("#vpad-left");
+        var vpadRight = document.querySelector("#vpad-right");
+        var message = document.querySelector(".message");
+        vpadLeft.classList.remove("display-none");
+        vpadRight.classList.remove("display-none");
+        message.classList.remove("display-none");
+
+        const clamp = (val, min, max) => {
+          return Math.min(Math.max(min, +val), max);
+        }
+        const getPoint = (dom, clientX, clientY) => {
+          const rect = dom.getBoundingClientRect()
+          let x = (clientX - rect.left) / (dom.clientWidth / 2) - 1;
+          let y = 1 - (clientY - rect.top) / (dom.clientHeight / 2);
+
+          if (Math.abs(x) > 1 || Math.abs(y) > 1) {
+            const v = Math.sqrt(x * x + y * y)
+            x = x / v
+            y = y / v
+          }
+          return {
+            x: x,
+            y: y,
+          }
+        }
+
+        let leftTouchId;
+        const handleStartLeft = e => {
+          e.preventDefault()
+          for (const touch of e.changedTouches) {
+            leftTouchId = touch.identifier
+            leftStart(getPoint(vpadLeft, touch.clientX, touch.clientY))
+            vpadLeft.removeEventListener("touchstart", handleStartLeft)
+            vpadLeft.addEventListener("touchmove", handleMoveLeft, { capture: false, passive: false })
+            document.addEventListener("touchend", handleEndLeft, { capture: false, passive: false })
+            document.addEventListener("touchcancel", handleEndLeft, { capture: false, passive: false })
+            break;
+          }
+        }
+        const handleMoveLeft = e => {
+          e.preventDefault()
+          for (const touch of e.changedTouches) {
+            if (leftTouchId != touch.identifier) continue
+            leftMove(getPoint(vpadLeft, touch.clientX, touch.clientY))
+            break;
+          }
+        }
+        const handleEndLeft = e => {
+          for (const touch of e.changedTouches) {
+            if (leftTouchId != touch.identifier) continue
+
+            leftEnd()
+
+            vpadLeft.addEventListener("touchstart", handleStartLeft, { capture: false, passive: false })
+            vpadLeft.removeEventListener("touchmove", handleMoveLeft)
+            document.removeEventListener("touchend", handleEndLeft)
+            document.removeEventListener("touchcancel", handleEndLeft, { capture: false, passive: false })
+            break;
+          }
+        }
+
+        const downAxisDown = () => {
+          unityInstance.SendMessage("Input2", "SetAxisName", "Vertical");
+          unityInstance.SendMessage("Input2", "SetAxisValue", -1);
+          buttons.down.classList.add("button-touched")
+        }
+        const downAxisLeft = () => {
+          unityInstance.SendMessage("Input2", "SetAxisName", "Horizontal");
+          unityInstance.SendMessage("Input2", "SetAxisValue", -1);
+          buttons.left.classList.add("button-touched")
+          buttons.right.classList.remove("button-touched")
+        }
+        const downAxisRight = () => {
+          unityInstance.SendMessage("Input2", "SetAxisName", "Horizontal");
+          unityInstance.SendMessage("Input2", "SetAxisValue", 1);
+          buttons.left.classList.remove("button-touched")
+          buttons.right.classList.add("button-touched")
+        }
+        const upAxisHorizontal = () => {
+          unityInstance.SendMessage("Input2", "SetAxisName", "Horizontal");
+          unityInstance.SendMessage("Input2", "SetAxisValue", 0);
+          buttons.left.classList.remove("button-touched")
+          buttons.right.classList.remove("button-touched")
+        }
+        const upAxisVertical = () => {
+          unityInstance.SendMessage("Input2", "SetAxisName", "Vertical");
+          unityInstance.SendMessage("Input2", "SetAxisValue", 0);
+          buttons.down.classList.remove("button-touched")
+        }
+
+        const downButtonA = () => {
+          unityInstance.SendMessage('Input2', 'SetButtonDown', 'Fire1');
+          buttons.a.classList.add("button-touched")
+        }
+        const downButtonB = () => {
+          unityInstance.SendMessage('Input2', 'SetButtonDown', 'Fire2');
+          buttons.b.classList.add("button-touched")
+        }
+        const upButtonA = () => {
+          unityInstance.SendMessage('Input2', 'SetButtonUp', 'Fire1');
+          buttons.a.classList.remove("button-touched")
+        }
+        const upButtonB = () => {
+          unityInstance.SendMessage('Input2', 'SetButtonUp', 'Fire2');
+          buttons.b.classList.remove("button-touched")
+        }
+
+        let isRight = false
+        let isDown = false
+        const leftStart = p => {
+          isRight = p.x >= 0
+          isDown = p.y < -0.5
+          if (isDown) {
+            downAxisDown()
+          } else {
+            if (isRight) {
+              downAxisRight()
+            } else {
+              downAxisLeft()
+            }
+          }
+        }
+        const leftMove = p => {
+          isDown = p.y < -0.5
+          if (isDown) {
+            upAxisHorizontal()
+            downAxisDown()
+          } else {
+            upAxisVertical()
+            if (p.x < 0) {
+              downAxisLeft()
+              isRight = false;
+            } else {
+              downAxisRight()
+              isRight = true;
+            }
+          }
+        }
+        const leftEnd = () => {
+          upAxisVertical()
+          upAxisHorizontal()
+        }
+
+        let rightTouchId;
+        const handleStartRight = e => {
+          e.preventDefault()
+          for (const touch of e.changedTouches) {
+            rightTouchId = touch.identifier
+            rightStart(getPoint(vpadRight, touch.clientX, touch.clientY))
+            vpadRight.removeEventListener("touchstart", handleStartRight)
+            vpadRight.addEventListener("touchmove", handleMoveRight, { capture: false, passive: false })
+            document.addEventListener("touchend", handleEndRight, { capture: false, passive: false })
+            document.addEventListener("touchcancel", handleEndRight, { capture: false, passive: false })
+            break;
+          }
+        }
+        const handleMoveRight = e => {
+          e.preventDefault()
+          for (const touch of e.changedTouches) {
+            if (rightTouchId != touch.identifier) continue
+            rightMove(getPoint(vpadRight, touch.clientX, touch.clientY))
+            break;
+          }
+        }
+        const handleEndRight = e => {
+          e.preventDefault()
+          for (const touch of e.changedTouches) {
+            if (rightTouchId != touch.identifier) continue
+
+            rightEnd()
+
+            vpadRight.addEventListener("touchstart", handleStartRight, { capture: false, passive: false })
+            vpadRight.removeEventListener("touchmove", handleMoveRight)
+            document.removeEventListener("touchend", handleEndRight)
+            document.removeEventListener("touchcancel", handleEndRight, { capture: false, passive: false })
+            break;
+          }
+        }
+        let isA = false
+        const rightStart = p => {
+          isA = p.x >= 0
+          if (isA) {
+            downButtonA()
+          } else {
+            downButtonB()
+          }
+        }
+        const rightMove = p => {
+          if (isA && p.x < 0) {
+            upButtonA()
+            downButtonB()
+            isA = false;
+          }
+          if (!isA && p.x >= 0) {
+            upButtonB()
+            downButtonA()
+            isA = true;
+          }
+        }
+        const rightEnd = () => {
+          if (isA) {
+            upButtonA()
+          } else {
+            upButtonB()
+          }
+        }
+
+        vpadLeft.addEventListener("touchstart", handleStartLeft, { capture: false, passive: false });
+        vpadRight.addEventListener("touchstart", handleStartRight, { capture: false, passive: false });
+      }
+    }).catch((message) => {
+      alert(message);
+    });
+  </script>
+</body>
+
+</html>
