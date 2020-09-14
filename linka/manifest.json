@@ -5,7 +5,7 @@
     "description": "Falling block puzzle.",
     "start_url": "/index.html",
     "display": "standalone",
-    "scope": "/",
+    "scope": "/linka/",
     "theme_color": "#4b376a",
     "background_color": "#000000",
     "orientation": "any",
