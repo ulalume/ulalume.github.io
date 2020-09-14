@@ -69,14 +69,14 @@ body {
 
 @media (orientation: landscape){
     .vpad {
-        max-width: 40vh;
-        max-height: 40vh;
+        max-width: 45vh;
+        max-height: 45vh;
     }
 }
 @media (orientation: portrait){
     .vpad {
-        max-width: 40vw;
-        max-height: 40vw;
+        max-width: 45vw;
+        max-height: 45vw;
     }
 }
 #vpad-left {
