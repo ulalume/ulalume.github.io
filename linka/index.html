@@ -128,7 +128,7 @@
           e.preventDefault()
           for (const touch of e.changedTouches) {
             leftTouchId = touch.identifier
-            leftStart(getPoint(vpadLeft, touch.clientX, touch.clientY))
+            leftMove(getPoint(vpadLeft, touch.clientX, touch.clientY))
             vpadLeft.removeEventListener("touchstart", handleStartLeft)
             vpadLeft.addEventListener("touchmove", handleMoveLeft, { capture: false, passive: false })
             document.addEventListener("touchend", handleEndLeft, { capture: false, passive: false })
@@ -245,7 +245,7 @@
           e.preventDefault()
           for (const touch of e.changedTouches) {
             rightTouchId = touch.identifier
-            rightMove(getPoint(vpadRight, touch.clientX, touch.clientY))
+            rightStart(getPoint(vpadRight, touch.clientX, touch.clientY))
             vpadRight.removeEventListener("touchstart", handleStartRight)
             vpadRight.addEventListener("touchmove", handleMoveRight, { capture: false, passive: false })
             document.addEventListener("touchend", handleEndRight, { capture: false, passive: false })
