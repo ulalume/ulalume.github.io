@@ -4,6 +4,7 @@
 <head>
   <meta charset="utf-8">
   <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+  <meta name="viewport" content="width=576">
   <link rel="manifest" href="manifest.json">
   <link rel="icon" type="image/png" href="./icon/favicon.png" sizes="32x32">
   <link rel="apple-touch-icon" href="./icon/icon-192x192.png" sizes="192x192" />
@@ -21,18 +22,18 @@
       <div id="progress"></div>
     </div>
     <div class="message display-none">Tap the screen for sound playing.</div>
-  </div>
-  <div id="vpad-left" class="vpad display-none">
-    <div id="left-button"><img src="svg/left.svg" width="48" height="48"></div>
-    <div id="right-button"><img src="svg/right.svg" width="48" height="48"></div>
-    <div id="down-button"><img src="svg/down.svg" width="48" height="48"></div>
-  </div>
-  <div id="vpad-right" class="vpad display-none">
-    <div id="a-button">
-      <div class="button-image"><img src="svg/rotate_right.svg" width="48" height="48"></img></div>
+    <div id="vpad-left" class="vpad display-none">
+      <div id="left-button"><img src="svg/left.svg" width="48" height="48"></div>
+      <div id="right-button"><img src="svg/right.svg" width="48" height="48"></div>
+      <div id="down-button"><img src="svg/down.svg" width="48" height="48"></div>
     </div>
-    <div id="b-button">
-      <div class="button-image"><img src="svg/rotate_left.svg" width="48" height="48"></img></div>
+    <div id="vpad-right" class="vpad display-none">
+      <div id="a-button">
+        <div class="button-image"><img src="svg/rotate_right.svg" width="48" height="48"></img></div>
+      </div>
+      <div id="b-button">
+        <div class="button-image"><img src="svg/rotate_left.svg" width="48" height="48"></img></div>
+      </div>
     </div>
   </div>
   <script src="Build/webgl.loader.js"></script>
@@ -202,34 +203,34 @@
           buttons.b.classList.remove("button-touched")
         }
 
-        let isRight = false
-        let isDown = false
-        const leftStart = p => {
-          isRight = p.x >= 0
-          isDown = p.y < -0.5
-          if (isDown) {
-            downAxisDown()
-          } else {
-            if (isRight) {
-              downAxisRight()
-            } else {
-              downAxisLeft()
-            }
-          }
+        const LeftState = {
+          none: 0,
+          down: 1,
+          left: 2,
+          right: 3,
         }
+        const getLeftState = p => {
+          if (p.y < -0.5) {
+            return LeftState.down;
+          }
+          if (p.x > 0.2) return LeftState.right
+          if (p.x < -0.2) return LeftState.left
+          return LeftState.none
+        }
+
         const leftMove = p => {
-          isDown = p.y < -0.5
-          if (isDown) {
+          const leftState = getLeftState(p)
+          if (leftState == LeftState.down) {
             upAxisHorizontal()
             downAxisDown()
           } else {
             upAxisVertical()
-            if (p.x < 0) {
-              downAxisLeft()
-              isRight = false;
-            } else {
+            if (leftState == LeftState.right) {
               downAxisRight()
-              isRight = true;
+            } else if (leftState == LeftState.left) {
+              downAxisLeft()
+            } else {
+              upAxisHorizontal()
             }
           }
         }
@@ -243,7 +244,7 @@
           e.preventDefault()
           for (const touch of e.changedTouches) {
             rightTouchId = touch.identifier
-            rightStart(getPoint(vpadRight, touch.clientX, touch.clientY))
+            rightMove(getPoint(vpadRight, touch.clientX, touch.clientY))
             vpadRight.removeEventListener("touchstart", handleStartRight)
             vpadRight.addEventListener("touchmove", handleMoveRight, { capture: false, passive: false })
             document.addEventListener("touchend", handleEndRight, { capture: false, passive: false })
